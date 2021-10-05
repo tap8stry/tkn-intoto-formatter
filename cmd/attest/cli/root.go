@@ -54,11 +54,13 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.tkn-yml2intoto.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.tkn-attest.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	RootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	RootCmd.AddCommand(ConvertCmd())
+	RootCmd.AddCommand(VersionCmd())
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -74,7 +76,7 @@ func initConfig() {
 		// Search config in home directory with name ".tkn-yml2intoto" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".tkn-yml2intoto")
+		viper.SetConfigName(".tkn-attest")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

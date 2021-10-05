@@ -17,11 +17,8 @@
 package cli
 
 import (
-	"context"
-	"flag"
 	"fmt"
-
-	"github.com/peterbourgon/ff/v3/ffcli"
+	"github.com/spf13/cobra"
 	goVersion "go.hein.dev/go-version"
 )
 
@@ -33,18 +30,21 @@ var (
 	output    = "json"
 )
 
-// versionCmd represents the serve command
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "tkn-attest version",
-	Long:  `Prints the tkn-attest tool version`,
-	Run: func(cmd *cobra.Command, args []string) {
-		resp := goVersion.FuncWithOutput(shortened, version, commit, date, output)
-		fmt.Print(resp)
-		return nil
-	},
-}
+// func init() {
+// 	RootCmd.AddCommand(versionCmd)
+// }
 
-func version() *ffcli.Command {
-	RootCmd.AddCommand(versionCmd)
+//VersionCmd :
+func VersionCmd() *cobra.Command {
+	// versionCmd represents the serve command
+	var versionCmd = &cobra.Command{
+		Use:   "version",
+		Short: "tkn-attest version",
+		Long:  `Prints the tkn-attest tool version`,
+		Run: func(cmd *cobra.Command, args []string) {
+			resp := goVersion.FuncWithOutput(shortened, version, commit, date, output)
+			fmt.Print(resp)
+		},
+	}
+	return versionCmd
 }
