@@ -52,7 +52,7 @@ Use "tkn-attest [command] --help" for more information about a command.
 2. Convert static tekton resources to intoto format
 
 ```
-%% tkn-attest convert -i sample-pipeline/task-bom.yaml -f ./task-bom-attest.json
+% tkn-attest convert -i sample-pipeline/task-bom.yaml -f ./task-bom-attest.json
 ```
 
 ## WIP
