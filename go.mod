@@ -13,6 +13,4 @@ require (
 	github.com/spf13/viper v1.9.0
 	github.com/tektoncd/pipeline v0.23.0
 	go.hein.dev/go-version v0.1.0
-	golang.org/x/sys v0.0.0-20210909193231-528a39cd75f3 // indirect
-	gopkg.in/yaml.v2 v2.4.0
 )

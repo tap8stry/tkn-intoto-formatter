@@ -31,11 +31,9 @@ var RootCmd = &cobra.Command{
 	Use:   "tkn-attest",
 	Short: "A tool to manage tkn attestations ",
 	Long: `tkn-attest is tool to manage various attestation functions, including 
-		conversion to intoto-iet6 and comparing :
+		conversion to intoto format and comparisons.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
