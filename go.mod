@@ -1,4 +1,4 @@
-module github.com/tkn-intoto-formatter
+module github.com/tap8stry/tkn-intoto-formatter
 
 go 1.16
 

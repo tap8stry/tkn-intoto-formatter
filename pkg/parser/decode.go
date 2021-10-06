@@ -7,8 +7,8 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/tap8stry/tkn-intoto-formatter/pkg/common"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/scheme"
-	"github.com/tkn-intoto-formatter/pkg/common"
 )
 
 const (
