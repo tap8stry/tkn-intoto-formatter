@@ -8,7 +8,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/tektoncd/pipeline/pkg/client/clientset/versioned/scheme"
-	"github.ibm.com/tkn-attest/pkg/common"
+	"github.com/tkn-attest/pkg/common"
 )
 
 const (

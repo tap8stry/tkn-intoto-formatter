@@ -1,7 +1,7 @@
 VERSION=$(shell git describe --tags --always)
 COMMIT=$(shell git rev-parse HEAD)
 BUILD=$(shell date +%FT%T%z)
-PKG=github.ibm.com/tkn-attest/cmd/attest/cli
+PKG=github.com/tkn-attest/cmd/attest/cli
 
 LDFLAGS="-X $(PKG).version=$(VERSION) -X $(PKG).commit=$(COMMIT) -X $(PKG).date=$(BUILD)"
 

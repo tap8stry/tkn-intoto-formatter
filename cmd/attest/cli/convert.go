@@ -18,8 +18,8 @@ package cli
 import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.ibm.com/tkn-attest/pkg/common"
-	"github.ibm.com/tkn-attest/pkg/convertor"
+	"github.com/tkn-attest/pkg/common"
+	"github.com/tkn-attest/pkg/convertor"
 )
 
 // // convertCmd represents the serve command

@@ -1,4 +1,4 @@
-module github.ibm.com/tkn-attest
+module github.com/tkn-attest
 
 go 1.16
 

@@ -4,9 +4,9 @@ import (
 	"io/ioutil"
 
 	"github.com/pkg/errors"
-	"github.ibm.com/tkn-attest/pkg/common"
-	"github.ibm.com/tkn-attest/pkg/convertor/tknkinds"
-	"github.ibm.com/tkn-attest/pkg/parser"
+	"github.com/tkn-attest/pkg/common"
+	"github.com/tkn-attest/pkg/convertor/tknkinds"
+	"github.com/tkn-attest/pkg/parser"
 )
 
 //ConvertToIntoto :
