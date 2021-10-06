@@ -1,4 +1,4 @@
-module github.com/tkn-attest
+module github.com/tkn-intoto-formatter
 
 go 1.16
 

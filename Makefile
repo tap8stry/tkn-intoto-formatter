@@ -1,7 +1,7 @@
 VERSION=$(shell git describe --tags --always)
 COMMIT=$(shell git rev-parse HEAD)
 BUILD=$(shell date +%FT%T%z)
-PKG=github.com/tkn-attest/cmd/attest/cli
+PKG=github.com/tkn-intoto-formatter/cmd/attest/cli
 
 LDFLAGS="-X $(PKG).version=$(VERSION) -X $(PKG).commit=$(COMMIT) -X $(PKG).date=$(BUILD)"
 
@@ -55,7 +55,7 @@ ci: lint test ## Run all the tests and code checks
 
 .PHONY: build
 build: ## Build a version
-	go build -ldflags ${LDFLAGS} -o tkn-attest cmd/attest/main.go
+	go build -ldflags ${LDFLAGS} -o tkn-intoto-formatter cmd/attest/main.go
 
 .PHONY: clean
 clean: ## Remove temporary files

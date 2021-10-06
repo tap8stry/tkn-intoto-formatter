@@ -15,7 +15,7 @@ limitations under the License.
 */
 package main
 
-import "github.com/tkn-attest/cmd/attest/cli"
+import "github.com/tkn-intoto-formatter/cmd/attest/cli"
 
 func main() {
 	cli.RootCmd.Execute()

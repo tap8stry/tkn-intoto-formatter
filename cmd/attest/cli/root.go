@@ -28,9 +28,9 @@ var cfgFile string
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
-	Use:   "tkn-attest",
+	Use:   "tkn-intoto-formatter",
 	Short: "A tool to manage tkn attestations ",
-	Long: `tkn-attest is tool to manage various attestation functions, including 
+	Long: `tkn-intoto-formatter is tool to manage various attestation functions, including 
 		conversion to intoto format and comparisons.
 
 `,
@@ -52,7 +52,7 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.tkn-attest.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.tkn-intoto-formatter.yaml)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -74,7 +74,7 @@ func initConfig() {
 		// Search config in home directory with name ".tkn-yml2intoto" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".tkn-attest")
+		viper.SetConfigName(".tkn-intoto-formatter")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

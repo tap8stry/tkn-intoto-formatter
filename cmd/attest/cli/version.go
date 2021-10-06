@@ -39,8 +39,8 @@ func VersionCmd() *cobra.Command {
 	// versionCmd represents the serve command
 	var versionCmd = &cobra.Command{
 		Use:   "version",
-		Short: "tkn-attest version",
-		Long:  `Prints the tkn-attest tool version`,
+		Short: "tkn-intoto-formatter version",
+		Long:  `Prints the tkn-intoto-formatter tool version`,
 		Run: func(cmd *cobra.Command, args []string) {
 			resp := goVersion.FuncWithOutput(shortened, version, commit, date, output)
 			fmt.Print(resp)
