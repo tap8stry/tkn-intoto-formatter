@@ -1,4 +1,4 @@
-# tkn-attest
+# tkn-intoto-formatter
 
 A common library to convert any tekton resource to intoto attestation format. 
 
