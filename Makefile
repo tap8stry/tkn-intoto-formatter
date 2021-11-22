@@ -2,6 +2,8 @@ VERSION=$(shell git describe --tags --always)
 COMMIT=$(shell git rev-parse HEAD)
 BUILD=$(shell date +%FT%T%z)
 PKG=github.com/tkn-intoto-formatter/cmd/attest/cli
+GOOS ?= $(shell go env GOOS)
+GOARCH ?= $(shell go env GOARCH)
 
 LDFLAGS="-X $(PKG).version=$(VERSION) -X $(PKG).commit=$(COMMIT) -X $(PKG).date=$(BUILD)"
 
@@ -55,7 +57,7 @@ ci: lint test ## Run all the tests and code checks
 
 .PHONY: build
 build: ## Build a version
-	go build -ldflags ${LDFLAGS} -o tkn-intoto-formatter cmd/attest/main.go
+	GOOS=$(GOOS) GOARCH=$(GOARCH) CGO_ENABLED=0 go build -ldflags ${LDFLAGS} -o tkn-intoto-formatter cmd/attest/main.go
 
 .PHONY: clean
 clean: ## Remove temporary files

@@ -20,8 +20,10 @@ type TknObject struct {
 
 //TknResources :
 type TknResources struct {
-	PipelineSpecs []*v1beta1.Pipeline
-	TaskSpecs     []*v1beta1.Task
+	PipelineSpecs    []*v1beta1.Pipeline
+	TaskSpecs        []*v1beta1.Task
+	TaskrunSpecs     []*v1beta1.TaskRun
+	PipelinerunSpecs []*v1beta1.PipelineRun
 }
 
 const (
