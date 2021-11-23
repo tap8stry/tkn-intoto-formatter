@@ -18,14 +18,14 @@ func PipelineToIntotoLayout(pipeline *v1beta1.Pipeline) ([]byte, error) {
 		step := toto.Step{}
 		step.Type = task.TaskRef.Name
 		step.Name = task.Name
-		step.ExpectedCommand = parsePipelineTaskCommands(&task)
-		step.ExpectedMaterials = parsePipelineTaskMaterial(&task)
+		step.ExpectedCommand = ParsePipelineTaskCommands(&task)
+		step.ExpectedMaterials = ParsePipelineTaskMaterial(&task)
 		layout.Steps = append(layout.Steps, step)
 	}
 	return json.MarshalIndent(layout, "", "    ")
 }
 
-func parsePipelineTaskCommands(pipelineTask *v1beta1.PipelineTask) []string {
+func ParsePipelineTaskCommands(pipelineTask *v1beta1.PipelineTask) []string {
 	commands := []string{}
 
 	// for _, cond := range pipelineTask.Conditions{
@@ -37,7 +37,7 @@ func parsePipelineTaskCommands(pipelineTask *v1beta1.PipelineTask) []string {
 	return commands
 }
 
-func parsePipelineTaskMaterial(pipelineTask *v1beta1.PipelineTask) [][]string {
+func ParsePipelineTaskMaterial(pipelineTask *v1beta1.PipelineTask) [][]string {
 	materials := [][]string{}
 	inputResources := []string{}
 	outputResources := []string{}

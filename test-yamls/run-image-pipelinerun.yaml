@@ -1,0 +1,669 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Pipeline","metadata":{"annotations":{"tekton.dev/displayName":"Buildpacks","tekton.dev/pipelines.minVersion":"0.17.0","tekton.dev/platforms":"linux/amd64","tekton.dev/tags":"image-build"},"labels":{"app.kubernetes.io/version":"0.1"},"name":"buildpacks","namespace":"default"},"spec":{"description":"The Buildpacks pipeline builds source from a Git repository into a container image and pushes it to a registry, using Cloud Native Buildpacks.","params":[{"description":"The image on which builds will run (must include lifecycle and compatible buildpacks).","name":"BUILDER_IMAGE"},{"default":"false","description":"Whether the builder image is trusted. When false, each build phase is executed in isolation and credentials are only shared with trusted images.","name":"TRUST_BUILDER"},{"description":"The name of where to store the app image.","name":"APP_IMAGE"},{"description":"A git repo url where the source code resides.","name":"SOURCE_URL"},{"default":"","description":"The branch, tag or SHA to checkout.","name":"SOURCE_REFERENCE"},{"default":"","description":"A subpath within checked out source where the source to build is located.","name":"SOURCE_SUBPATH"},{"default":[],"description":"Environment variables to set during _build-time_.","name":"ENV_VARS","type":"array"},{"default":"web","description":"The default process type to set on the image.","name":"PROCESS_TYPE"},{"default":"","description":"The name of the run image to use (defaults to image specified in builder).","name":"RUN_IMAGE"},{"default":"","description":"The name of the persistent cache image.","name":"CACHE_IMAGE"},{"default":"1000","description":"The user ID of the builder image user.","name":"USER_ID"},{"default":"1000","description":"The group ID of the builder image user.","name":"GROUP_ID"}],"tasks":[{"name":"fetch-from-git","params":[{"name":"url","value":"$(params.SOURCE_URL)"},{"name":"revision","value":"$(params.SOURCE_REFERENCE)"}],"taskRef":{"name":"git-clone"},"workspaces":[{"name":"output","workspace":"source-ws"}]},{"name":"build-trusted","params":[{"name":"BUILDER_IMAGE","value":"$(params.BUILDER_IMAGE)"},{"name":"APP_IMAGE","value":"$(params.APP_IMAGE)"},{"name":"SOURCE_SUBPATH","value":"$(params.SOURCE_SUBPATH)"},{"name":"PROCESS_TYPE","value":"$(params.PROCESS_TYPE)"},{"name":"ENV_VARS","value":["$(params.ENV_VARS)"]},{"name":"RUN_IMAGE","value":"$(params.RUN_IMAGE)"},{"name":"CACHE_IMAGE","value":"$(params.CACHE_IMAGE)"},{"name":"USER_ID","value":"$(params.USER_ID)"},{"name":"GROUP_ID","value":"$(params.GROUP_ID)"}],"runAfter":["fetch-from-git"],"taskRef":{"name":"buildpacks"},"when":[{"input":"$(params.TRUST_BUILDER)","operator":"in","values":["true","yes","TRUE","True"]}],"workspaces":[{"name":"source","workspace":"source-ws"},{"name":"cache","workspace":"cache-ws"}]},{"name":"build-untrusted","params":[{"name":"BUILDER_IMAGE","value":"$(params.BUILDER_IMAGE)"},{"name":"APP_IMAGE","value":"$(params.APP_IMAGE)"},{"name":"SOURCE_SUBPATH","value":"$(params.SOURCE_SUBPATH)"},{"name":"ENV_VARS","value":["$(params.ENV_VARS)"]},{"name":"PROCESS_TYPE","value":"$(params.PROCESS_TYPE)"},{"name":"RUN_IMAGE","value":"$(params.RUN_IMAGE)"},{"name":"CACHE_IMAGE","value":"$(params.CACHE_IMAGE)"},{"name":"USER_ID","value":"$(params.USER_ID)"},{"name":"GROUP_ID","value":"$(params.GROUP_ID)"}],"runAfter":["fetch-from-git"],"taskRef":{"name":"buildpacks-phases"},"when":[{"input":"$(params.TRUST_BUILDER)","operator":"notin","values":["true","yes","TRUE","True"]}],"workspaces":[{"name":"source","workspace":"source-ws"},{"name":"cache","workspace":"cache-ws"}]}],"workspaces":[{"description":"Location where source is stored.","name":"source-ws"},{"description":"Location where cache is stored if CACHE_IMAGE is not provided.","name":"cache-ws","optional":true}]}}
+    tekton.dev/displayName: Buildpacks
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: image-build
+  creationTimestamp: "2021-11-22T21:19:18Z"
+  generation: 1
+  labels:
+    app.kubernetes.io/description: PipelineRun
+    app.kubernetes.io/version: "0.1"
+    tekton.dev/pipeline: buildpacks
+  name: run-image-pipelinerun
+  namespace: default
+  resourceVersion: "635311"
+  uid: 9a7f9764-8d73-472b-8f31-9d5d50de864b
+spec:
+  params:
+  - name: BUILDER_IMAGE
+    value: docker.io/cnbs/sample-builder:bionic@sha256:6c03dd604503b59820fd15adbc65c0a077a47e31d404a3dcad190f3179e920b5
+  - name: TRUST_BUILDER
+    value: "true"
+  - name: APP_IMAGE
+    value: ttl.sh/30306a73f25d8293fa234d5250761d25/slsapoc
+  - name: SOURCE_URL
+    value: https://github.com/buildpacks/samples
+  - name: SOURCE_SUBPATH
+    value: apps/ruby-bundler
+  - name: CACHE_IMAGE
+    value: ttl.sh/30306a73f25d8293fa234d5250761d25/slsapoc-cache
+  pipelineRef:
+    name: buildpacks
+  serviceAccountName: default
+  timeout: 1h0m0s
+  workspaces:
+  - name: source-ws
+    persistentVolumeClaim:
+      claimName: cache-image-ws-pvc
+    subPath: source
+  - emptyDir: {}
+    name: cache-ws
+status:
+  completionTime: "2021-11-22T21:20:21Z"
+  conditions:
+  - lastTransitionTime: "2021-11-22T21:20:21Z"
+    message: 'Tasks Completed: 2 (Failed: 0, Cancelled 0), Skipped: 1'
+    reason: Completed
+    status: "True"
+    type: Succeeded
+  pipelineSpec:
+    description: The Buildpacks pipeline builds source from a Git repository into
+      a container image and pushes it to a registry, using Cloud Native Buildpacks.
+    params:
+    - description: The image on which builds will run (must include lifecycle and
+        compatible buildpacks).
+      name: BUILDER_IMAGE
+      type: string
+    - default: "false"
+      description: Whether the builder image is trusted. When false, each build phase
+        is executed in isolation and credentials are only shared with trusted images.
+      name: TRUST_BUILDER
+      type: string
+    - description: The name of where to store the app image.
+      name: APP_IMAGE
+      type: string
+    - description: A git repo url where the source code resides.
+      name: SOURCE_URL
+      type: string
+    - default: ""
+      description: The branch, tag or SHA to checkout.
+      name: SOURCE_REFERENCE
+      type: string
+    - default: ""
+      description: A subpath within checked out source where the source to build is
+        located.
+      name: SOURCE_SUBPATH
+      type: string
+    - default: []
+      description: Environment variables to set during _build-time_.
+      name: ENV_VARS
+      type: array
+    - default: web
+      description: The default process type to set on the image.
+      name: PROCESS_TYPE
+      type: string
+    - default: ""
+      description: The name of the run image to use (defaults to image specified in
+        builder).
+      name: RUN_IMAGE
+      type: string
+    - default: ""
+      description: The name of the persistent cache image.
+      name: CACHE_IMAGE
+      type: string
+    - default: "1000"
+      description: The user ID of the builder image user.
+      name: USER_ID
+      type: string
+    - default: "1000"
+      description: The group ID of the builder image user.
+      name: GROUP_ID
+      type: string
+    tasks:
+    - name: fetch-from-git
+      params:
+      - name: url
+        value: $(params.SOURCE_URL)
+      - name: revision
+        value: $(params.SOURCE_REFERENCE)
+      taskRef:
+        kind: Task
+        name: git-clone
+      workspaces:
+      - name: output
+        workspace: source-ws
+    - name: build-trusted
+      params:
+      - name: BUILDER_IMAGE
+        value: $(params.BUILDER_IMAGE)
+      - name: APP_IMAGE
+        value: $(params.APP_IMAGE)
+      - name: SOURCE_SUBPATH
+        value: $(params.SOURCE_SUBPATH)
+      - name: PROCESS_TYPE
+        value: $(params.PROCESS_TYPE)
+      - name: ENV_VARS
+        value:
+        - $(params.ENV_VARS)
+      - name: RUN_IMAGE
+        value: $(params.RUN_IMAGE)
+      - name: CACHE_IMAGE
+        value: $(params.CACHE_IMAGE)
+      - name: USER_ID
+        value: $(params.USER_ID)
+      - name: GROUP_ID
+        value: $(params.GROUP_ID)
+      runAfter:
+      - fetch-from-git
+      taskRef:
+        kind: Task
+        name: buildpacks
+      when:
+      - input: $(params.TRUST_BUILDER)
+        operator: in
+        values:
+        - "true"
+        - "yes"
+        - "TRUE"
+        - "True"
+      workspaces:
+      - name: source
+        workspace: source-ws
+      - name: cache
+        workspace: cache-ws
+    - name: build-untrusted
+      params:
+      - name: BUILDER_IMAGE
+        value: $(params.BUILDER_IMAGE)
+      - name: APP_IMAGE
+        value: $(params.APP_IMAGE)
+      - name: SOURCE_SUBPATH
+        value: $(params.SOURCE_SUBPATH)
+      - name: ENV_VARS
+        value:
+        - $(params.ENV_VARS)
+      - name: PROCESS_TYPE
+        value: $(params.PROCESS_TYPE)
+      - name: RUN_IMAGE
+        value: $(params.RUN_IMAGE)
+      - name: CACHE_IMAGE
+        value: $(params.CACHE_IMAGE)
+      - name: USER_ID
+        value: $(params.USER_ID)
+      - name: GROUP_ID
+        value: $(params.GROUP_ID)
+      runAfter:
+      - fetch-from-git
+      taskRef:
+        kind: Task
+        name: buildpacks-phases
+      when:
+      - input: $(params.TRUST_BUILDER)
+        operator: notin
+        values:
+        - "true"
+        - "yes"
+        - "TRUE"
+        - "True"
+      workspaces:
+      - name: source
+        workspace: source-ws
+      - name: cache
+        workspace: cache-ws
+    workspaces:
+    - description: Location where source is stored.
+      name: source-ws
+    - description: Location where cache is stored if CACHE_IMAGE is not provided.
+      name: cache-ws
+      optional: true
+  skippedTasks:
+  - name: build-untrusted
+    whenExpressions:
+    - input: "true"
+      operator: notin
+      values:
+      - "true"
+      - "yes"
+      - "TRUE"
+      - "True"
+  startTime: "2021-11-22T21:19:20Z"
+  taskRuns:
+    run-image-pipelinerun-build-trusted-d7h8d:
+      pipelineTaskName: build-trusted
+      status:
+        completionTime: "2021-11-22T21:20:21Z"
+        conditions:
+        - lastTransitionTime: "2021-11-22T21:20:21Z"
+          message: All Steps have completed executing
+          reason: Succeeded
+          status: "True"
+          type: Succeeded
+        podName: run-image-pipelinerun-build-trusted-d7h8d-pod-xcvlp
+        startTime: "2021-11-22T21:19:30Z"
+        steps:
+        - container: step-prepare
+          imageID: docker-pullable://bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+          name: prepare
+          terminated:
+            containerID: docker://8f6e9379d320024093daa654bf44ae5608106acf67a08a45c5603b4b5034436d
+            exitCode: 0
+            finishedAt: "2021-11-22T21:19:37Z"
+            reason: Completed
+            startedAt: "2021-11-22T21:19:37Z"
+        - container: step-create
+          imageID: docker-pullable://cnbs/sample-builder@sha256:6c03dd604503b59820fd15adbc65c0a077a47e31d404a3dcad190f3179e920b5
+          name: create
+          terminated:
+            containerID: docker://67ce6ef1b6fdec1e7c4b70f8e45c2c09515dd4c7da41bb0eeedfd25b810bde91
+            exitCode: 0
+            finishedAt: "2021-11-22T21:20:19Z"
+            reason: Completed
+            startedAt: "2021-11-22T21:19:38Z"
+        - container: step-results
+          imageID: docker-pullable://bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+          name: results
+          terminated:
+            containerID: docker://154e1e4839d0403d8b2b84a3faa3aa498cb85de06ef2ce52de8250291770f93d
+            exitCode: 0
+            finishedAt: "2021-11-22T21:20:20Z"
+            message: '[{"key":"APP_IMAGE_DIGEST","value":"sha256:7c2fb77bf9a5eae1561974f8adbe95a475a8bdf74cd805aa30127ae313cd58b7","type":1},{"key":"APP_IMAGE_URL","value":"ttl.sh/30306a73f25d8293fa234d5250761d25/slsapoc\n","type":1}]'
+            reason: Completed
+            startedAt: "2021-11-22T21:20:20Z"
+        taskResults:
+        - name: APP_IMAGE_DIGEST
+          value: sha256:7c2fb77bf9a5eae1561974f8adbe95a475a8bdf74cd805aa30127ae313cd58b7
+        - name: APP_IMAGE_URL
+          value: |
+            ttl.sh/30306a73f25d8293fa234d5250761d25/slsapoc
+        taskSpec:
+          description: The Buildpacks task builds source into a container image and
+            pushes it to a registry, using Cloud Native Buildpacks.
+          params:
+          - description: The name of where to store the app image.
+            name: APP_IMAGE
+            type: string
+          - description: The image on which builds will run (must include lifecycle
+              and compatible buildpacks).
+            name: BUILDER_IMAGE
+            type: string
+          - default: ""
+            description: A subpath within the `source` input where the source to build
+              is located.
+            name: SOURCE_SUBPATH
+            type: string
+          - default: []
+            description: Environment variables to set during _build-time_.
+            name: ENV_VARS
+            type: array
+          - default: web
+            description: The default process type to set on the image.
+            name: PROCESS_TYPE
+            type: string
+          - default: ""
+            description: Reference to a run image to use.
+            name: RUN_IMAGE
+            type: string
+          - default: ""
+            description: The name of the persistent app cache image (if no cache workspace
+              is provided).
+            name: CACHE_IMAGE
+            type: string
+          - default: "false"
+            description: Do not write layer metadata or restore cached layers.
+            name: SKIP_RESTORE
+            type: string
+          - default: "1000"
+            description: The user ID of the builder image user.
+            name: USER_ID
+            type: string
+          - default: "1000"
+            description: The group ID of the builder image user.
+            name: GROUP_ID
+            type: string
+          - default: empty-dir
+            description: The name of the platform directory.
+            name: PLATFORM_DIR
+            type: string
+          results:
+          - description: The digest of the built `APP_IMAGE`.
+            name: APP_IMAGE_DIGEST
+          - description: The URL of the built `APP_IMAGE`.
+            name: APP_IMAGE_URL
+          stepTemplate:
+            env:
+            - name: CNB_PLATFORM_API
+              value: "0.4"
+            name: ""
+            resources: {}
+          steps:
+          - args:
+            - --env-vars
+            - $(params.ENV_VARS[*])
+            image: docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+            name: prepare
+            resources: {}
+            script: |
+              #!/usr/bin/env bash
+              set -e
+
+              if [[ "$(workspaces.cache.bound)" == "true" ]]; then
+                echo "> Setting permissions on '$(workspaces.cache.path)'..."
+                chown -R "$(params.USER_ID):$(params.GROUP_ID)" "$(workspaces.cache.path)"
+              fi
+
+              for path in "/tekton/home" "/layers" "$(workspaces.source.path)"; do
+                echo "> Setting permissions on '$path'..."
+                chown -R "$(params.USER_ID):$(params.GROUP_ID)" "$path"
+              done
+
+              echo "> Parsing additional configuration..."
+              parsing_flag=""
+              envs=()
+              for arg in "$@"; do
+                  if [[ "$arg" == "--env-vars" ]]; then
+                      echo "-> Parsing env variables..."
+                      parsing_flag="env-vars"
+                  elif [[ "$parsing_flag" == "env-vars" ]]; then
+                      envs+=("$arg")
+                  fi
+              done
+
+              echo "> Processing any environment variables..."
+              ENV_DIR="/platform/env"
+
+              echo "--> Creating 'env' directory: $ENV_DIR"
+              mkdir -p "$ENV_DIR"
+
+              for env in "${envs[@]}"; do
+                  IFS='=' read -r key value <<< "$env"
+                  if [[ "$key" != "" && "$value" != "" ]]; then
+                      path="${ENV_DIR}/${key}"
+                      echo "--> Writing ${path}..."
+                      echo -n "$value" > "$path"
+                  fi
+              done
+            securityContext:
+              privileged: true
+            volumeMounts:
+            - mountPath: /layers
+              name: layers-dir
+            - mountPath: /platform
+              name: $(params.PLATFORM_DIR)
+          - args:
+            - -app=$(workspaces.source.path)/$(params.SOURCE_SUBPATH)
+            - -cache-dir=$(workspaces.cache.path)
+            - -cache-image=$(params.CACHE_IMAGE)
+            - -uid=$(params.USER_ID)
+            - -gid=$(params.GROUP_ID)
+            - -layers=/layers
+            - -platform=/platform
+            - -report=/layers/report.toml
+            - -process-type=$(params.PROCESS_TYPE)
+            - -skip-restore=$(params.SKIP_RESTORE)
+            - -previous-image=$(params.APP_IMAGE)
+            - -run-image=$(params.RUN_IMAGE)
+            - $(params.APP_IMAGE)
+            command:
+            - /cnb/lifecycle/creator
+            image: $(params.BUILDER_IMAGE)
+            imagePullPolicy: Always
+            name: create
+            resources: {}
+            securityContext:
+              runAsGroup: 1000
+              runAsUser: 1000
+            volumeMounts:
+            - mountPath: /layers
+              name: layers-dir
+            - mountPath: /platform
+              name: $(params.PLATFORM_DIR)
+          - image: docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+            name: results
+            resources: {}
+            script: |
+              #!/usr/bin/env bash
+              set -e
+              grep "digest" /layers/report.toml | cut -d'"' -f2 | cut -d'"' -f2 | tr -d '\n' | tee "$(results.APP_IMAGE_DIGEST.path)"
+
+              # Disable shellcheck here since $() is use for variable substitution and not command execution.
+              # shellcheck disable=SC2005
+              echo "$(params.APP_IMAGE)" | tee "$(results.APP_IMAGE_URL.path)"
+            volumeMounts:
+            - mountPath: /layers
+              name: layers-dir
+          volumes:
+          - emptyDir: {}
+            name: empty-dir
+          - emptyDir: {}
+            name: layers-dir
+          workspaces:
+          - description: Directory where application source is located.
+            name: source
+          - description: Directory where cache is stored (when no cache image is provided).
+            name: cache
+            optional: true
+      whenExpressions:
+      - input: "true"
+        operator: in
+        values:
+        - "true"
+        - "yes"
+        - "TRUE"
+        - "True"
+    run-image-pipelinerun-fetch-from-git-5b2ls:
+      pipelineTaskName: fetch-from-git
+      status:
+        completionTime: "2021-11-22T21:19:30Z"
+        conditions:
+        - lastTransitionTime: "2021-11-22T21:19:30Z"
+          message: All Steps have completed executing
+          reason: Succeeded
+          status: "True"
+          type: Succeeded
+        podName: run-image-pipelinerun-fetch-from-git-5b2ls-pod-h9dld
+        startTime: "2021-11-22T21:19:20Z"
+        steps:
+        - container: step-clone
+          imageID: docker-pullable://gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init@sha256:c0b0ed1cd81090ce8eecf60b936e9345089d9dfdb6ebdd2fd7b4a0341ef4f2b9
+          name: clone
+          terminated:
+            containerID: docker://892afd67c5ca3a4a33cf52b6517a4293cbb09553a66ad781fbc6042ad4871bbf
+            exitCode: 0
+            finishedAt: "2021-11-22T21:19:29Z"
+            message: '[{"key":"commit","value":"aa79de59c4bae24e32f15fda467d02ae9cd94b01","type":1},{"key":"url","value":"https://github.com/buildpacks/samples","type":1}]'
+            reason: Completed
+            startedAt: "2021-11-22T21:19:28Z"
+        taskResults:
+        - name: commit
+          value: aa79de59c4bae24e32f15fda467d02ae9cd94b01
+        - name: url
+          value: https://github.com/buildpacks/samples
+        taskSpec:
+          description: |-
+            These Tasks are Git tasks to work with repositories used by other tasks in your Pipeline.
+            The git-clone Task will clone a repo from the provided url into the output Workspace. By default the repo will be cloned into the root of your Workspace. You can clone into a subdirectory by setting this Task's subdirectory param. This Task also supports sparse checkouts. To perform a sparse checkout, pass a list of comma separated directory patterns to this Task's sparseCheckoutDirectories param.
+          params:
+          - description: Repository URL to clone from.
+            name: url
+            type: string
+          - default: ""
+            description: Revision to checkout. (branch, tag, sha, ref, etc...)
+            name: revision
+            type: string
+          - default: ""
+            description: Refspec to fetch before checking out revision.
+            name: refspec
+            type: string
+          - default: "true"
+            description: Initialize and fetch git submodules.
+            name: submodules
+            type: string
+          - default: "1"
+            description: Perform a shallow clone, fetching only the most recent N
+              commits.
+            name: depth
+            type: string
+          - default: "true"
+            description: Set the `http.sslVerify` global git config. Setting this
+              to `false` is not advised unless you are sure that you trust your git
+              remote.
+            name: sslVerify
+            type: string
+          - default: ""
+            description: Subdirectory inside the `output` Workspace to clone the repo
+              into.
+            name: subdirectory
+            type: string
+          - default: ""
+            description: Define the directory patterns to match or exclude when performing
+              a sparse checkout.
+            name: sparseCheckoutDirectories
+            type: string
+          - default: "true"
+            description: Clean out the contents of the destination directory if it
+              already exists before cloning.
+            name: deleteExisting
+            type: string
+          - default: ""
+            description: HTTP proxy server for non-SSL requests.
+            name: httpProxy
+            type: string
+          - default: ""
+            description: HTTPS proxy server for SSL requests.
+            name: httpsProxy
+            type: string
+          - default: ""
+            description: Opt out of proxying HTTP/HTTPS requests.
+            name: noProxy
+            type: string
+          - default: "true"
+            description: Log the commands that are executed during `git-clone`'s operation.
+            name: verbose
+            type: string
+          - default: gcr.io/tekton-releases/github.com/tektoncd/pipeline/cmd/git-init:v0.29.0
+            description: The image providing the git-init binary that this Task runs.
+            name: gitInitImage
+            type: string
+          - default: /tekton/home
+            description: |
+              Absolute path to the user's home directory. Set this explicitly if you are running the image as a non-root user or have overridden
+              the gitInitImage param with an image containing custom user configuration.
+            name: userHome
+            type: string
+          results:
+          - description: The precise commit SHA that was fetched by this Task.
+            name: commit
+          - description: The precise URL that was fetched by this Task.
+            name: url
+          steps:
+          - env:
+            - name: HOME
+              value: $(params.userHome)
+            - name: PARAM_URL
+              value: $(params.url)
+            - name: PARAM_REVISION
+              value: $(params.revision)
+            - name: PARAM_REFSPEC
+              value: $(params.refspec)
+            - name: PARAM_SUBMODULES
+              value: $(params.submodules)
+            - name: PARAM_DEPTH
+              value: $(params.depth)
+            - name: PARAM_SSL_VERIFY
+              value: $(params.sslVerify)
+            - name: PARAM_SUBDIRECTORY
+              value: $(params.subdirectory)
+            - name: PARAM_DELETE_EXISTING
+              value: $(params.deleteExisting)
+            - name: PARAM_HTTP_PROXY
+              value: $(params.httpProxy)
+            - name: PARAM_HTTPS_PROXY
+              value: $(params.httpsProxy)
+            - name: PARAM_NO_PROXY
+              value: $(params.noProxy)
+            - name: PARAM_VERBOSE
+              value: $(params.verbose)
+            - name: PARAM_SPARSE_CHECKOUT_DIRECTORIES
+              value: $(params.sparseCheckoutDirectories)
+            - name: PARAM_USER_HOME
+              value: $(params.userHome)
+            - name: WORKSPACE_OUTPUT_PATH
+              value: $(workspaces.output.path)
+            - name: WORKSPACE_SSH_DIRECTORY_BOUND
+              value: $(workspaces.ssh-directory.bound)
+            - name: WORKSPACE_SSH_DIRECTORY_PATH
+              value: $(workspaces.ssh-directory.path)
+            - name: WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND
+              value: $(workspaces.basic-auth.bound)
+            - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
+              value: $(workspaces.basic-auth.path)
+            image: $(params.gitInitImage)
+            name: clone
+            resources: {}
+            script: |
+              #!/usr/bin/env sh
+              set -eu
+
+              if [ "${PARAM_VERBOSE}" = "true" ] ; then
+                set -x
+              fi
+
+              if [ "${WORKSPACE_BASIC_AUTH_DIRECTORY_BOUND}" = "true" ] ; then
+                cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
+                cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+                chmod 400 "${PARAM_USER_HOME}/.git-credentials"
+                chmod 400 "${PARAM_USER_HOME}/.gitconfig"
+              fi
+
+              if [ "${WORKSPACE_SSH_DIRECTORY_BOUND}" = "true" ] ; then
+                cp -R "${WORKSPACE_SSH_DIRECTORY_PATH}" "${PARAM_USER_HOME}"/.ssh
+                chmod 700 "${PARAM_USER_HOME}"/.ssh
+                chmod -R 400 "${PARAM_USER_HOME}"/.ssh/*
+              fi
+
+              CHECKOUT_DIR="${WORKSPACE_OUTPUT_PATH}/${PARAM_SUBDIRECTORY}"
+
+              cleandir() {
+                # Delete any existing contents of the repo directory if it exists.
+                #
+                # We don't just "rm -rf ${CHECKOUT_DIR}" because ${CHECKOUT_DIR} might be "/"
+                # or the root of a mounted volume.
+                if [ -d "${CHECKOUT_DIR}" ] ; then
+                  # Delete non-hidden files and directories
+                  rm -rf "${CHECKOUT_DIR:?}"/*
+                  # Delete files and directories starting with . but excluding ..
+                  rm -rf "${CHECKOUT_DIR}"/.[!.]*
+                  # Delete files and directories starting with .. plus any other character
+                  rm -rf "${CHECKOUT_DIR}"/..?*
+                fi
+              }
+
+              if [ "${PARAM_DELETE_EXISTING}" = "true" ] ; then
+                cleandir
+              fi
+
+              test -z "${PARAM_HTTP_PROXY}" || export HTTP_PROXY="${PARAM_HTTP_PROXY}"
+              test -z "${PARAM_HTTPS_PROXY}" || export HTTPS_PROXY="${PARAM_HTTPS_PROXY}"
+              test -z "${PARAM_NO_PROXY}" || export NO_PROXY="${PARAM_NO_PROXY}"
+
+              /ko-app/git-init \
+                -url="${PARAM_URL}" \
+                -revision="${PARAM_REVISION}" \
+                -refspec="${PARAM_REFSPEC}" \
+                -path="${CHECKOUT_DIR}" \
+                -sslVerify="${PARAM_SSL_VERIFY}" \
+                -submodules="${PARAM_SUBMODULES}" \
+                -depth="${PARAM_DEPTH}" \
+                -sparseCheckoutDirectories="${PARAM_SPARSE_CHECKOUT_DIRECTORIES}"
+              cd "${CHECKOUT_DIR}"
+              RESULT_SHA="$(git rev-parse HEAD)"
+              EXIT_CODE="$?"
+              if [ "${EXIT_CODE}" != 0 ] ; then
+                exit "${EXIT_CODE}"
+              fi
+              printf "%s" "${RESULT_SHA}" > "$(results.commit.path)"
+              printf "%s" "${PARAM_URL}" > "$(results.url.path)"
+          workspaces:
+          - description: The git repo will be cloned onto the volume backing this
+              Workspace.
+            name: output
+          - description: |
+              A .ssh directory with private key, known_hosts, config, etc. Copied to
+              the user's home before git commands are executed. Used to authenticate
+              with the git remote when performing the clone. Binding a Secret to this
+              Workspace is strongly recommended over other volume types.
+            name: ssh-directory
+            optional: true
+          - description: |
+              A Workspace containing a .gitconfig and .git-credentials file. These
+              will be copied to the user's home before any git commands are run. Any
+              other files in this Workspace are ignored. It is strongly recommended
+              to use ssh-directory over basic-auth whenever possible and to bind a
+              Secret to this Workspace over other volume types.
+            name: basic-auth
+            optional: true

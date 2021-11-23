@@ -15,13 +15,14 @@ const (
 	task           string = "Task"
 	taskrun        string = "TaskRun"
 	pipeline       string = "Pipeline"
+	pipelinerun    string = "PipelineRun"
 	triggerbinding string = "TriggerBinding"
 )
 
 //GetTknResources :
 func GetTknResources(file string) (common.TknResources, error) {
-	acceptedK8sTypes := regexp.MustCompile(fmt.Sprintf("(%s|%s|%s|%s)",
-		task, pipeline, taskrun, triggerbinding))
+	acceptedK8sTypes := regexp.MustCompile(fmt.Sprintf("(%s|%s|%s|%s|%s)",
+		task, pipeline, taskrun, pipelinerun, triggerbinding))
 	var tknRes common.TknResources
 	if common.IsYAMLFile(file) {
 		if filebuf, err := ioutil.ReadFile(file); err == nil {
@@ -62,6 +63,14 @@ func AddTknResource(kind string, objDataBuf []byte, raw *common.TknResources) er
 		pipeline, _ := parseTknPipeline(objDataBuf)
 		//Handle error
 		raw.PipelineSpecs = append(raw.PipelineSpecs, pipeline)
+	case "TaskRun":
+		taskrun, _ := parseTknTaskRun(objDataBuf)
+		//Handle error
+		raw.TaskrunSpecs = append(raw.TaskrunSpecs, taskrun)
+	case "PipelineRun":
+		pipelinerun, _ := parseTknPipelineRun(objDataBuf)
+		//Handle error
+		raw.PipelinerunSpecs = append(raw.PipelinerunSpecs, pipelinerun)
 	}
 
 	return nil

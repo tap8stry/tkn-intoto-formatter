@@ -18,6 +18,7 @@ package cli
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 	goVersion "go.hein.dev/go-version"
 )

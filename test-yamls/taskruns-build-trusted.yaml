@@ -1,0 +1,285 @@
+apiVersion: tekton.dev/v1beta1
+kind: TaskRun
+metadata:
+  annotations:
+    chains.tekton.dev/signed: "true"
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"tekton.dev/v1beta1","kind":"Task","metadata":{"annotations":{"tekton.dev/categories":"Image Build","tekton.dev/displayName":"Buildpacks","tekton.dev/pipelines.minVersion":"0.17.0","tekton.dev/platforms":"linux/amd64","tekton.dev/tags":"image-build"},"labels":{"app.kubernetes.io/version":"0.4"},"name":"buildpacks","namespace":"default"},"spec":{"description":"The Buildpacks task builds source into a container image and pushes it to a registry, using Cloud Native Buildpacks.","params":[{"description":"The name of where to store the app image.","name":"APP_IMAGE"},{"description":"The image on which builds will run (must include lifecycle and compatible buildpacks).","name":"BUILDER_IMAGE"},{"default":"","description":"A subpath within the `source` input where the source to build is located.","name":"SOURCE_SUBPATH"},{"default":[],"description":"Environment variables to set during _build-time_.","name":"ENV_VARS","type":"array"},{"default":"web","description":"The default process type to set on the image.","name":"PROCESS_TYPE"},{"default":"","description":"Reference to a run image to use.","name":"RUN_IMAGE"},{"default":"","description":"The name of the persistent app cache image (if no cache workspace is provided).","name":"CACHE_IMAGE"},{"default":"false","description":"Do not write layer metadata or restore cached layers.","name":"SKIP_RESTORE"},{"default":"1000","description":"The user ID of the builder image user.","name":"USER_ID"},{"default":"1000","description":"The group ID of the builder image user.","name":"GROUP_ID"},{"default":"empty-dir","description":"The name of the platform directory.","name":"PLATFORM_DIR"}],"results":[{"description":"The digest of the built `APP_IMAGE`.","name":"APP_IMAGE_DIGEST"},{"description":"The URL of the built `APP_IMAGE`.","name":"APP_IMAGE_URL"}],"stepTemplate":{"env":[{"name":"CNB_PLATFORM_API","value":"0.4"}]},"steps":[{"args":["--env-vars","$(params.ENV_VARS[*])"],"image":"docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6","name":"prepare","script":"#!/usr/bin/env bash\nset -e\n\nif [[ \"$(workspaces.cache.bound)\" == \"true\" ]]; then\n  echo \"\u003e Setting permissions on '$(workspaces.cache.path)'...\"\n  chown -R \"$(params.USER_ID):$(params.GROUP_ID)\" \"$(workspaces.cache.path)\"\nfi\n\nfor path in \"/tekton/home\" \"/layers\" \"$(workspaces.source.path)\"; do\n  echo \"\u003e Setting permissions on '$path'...\"\n  chown -R \"$(params.USER_ID):$(params.GROUP_ID)\" \"$path\"\ndone\n\necho \"\u003e Parsing additional configuration...\"\nparsing_flag=\"\"\nenvs=()\nfor arg in \"$@\"; do\n    if [[ \"$arg\" == \"--env-vars\" ]]; then\n        echo \"-\u003e Parsing env variables...\"\n        parsing_flag=\"env-vars\"\n    elif [[ \"$parsing_flag\" == \"env-vars\" ]]; then\n        envs+=(\"$arg\")\n    fi\ndone\n\necho \"\u003e Processing any environment variables...\"\nENV_DIR=\"/platform/env\"\n\necho \"--\u003e Creating 'env' directory: $ENV_DIR\"\nmkdir -p \"$ENV_DIR\"\n\nfor env in \"${envs[@]}\"; do\n    IFS='=' read -r key value \u003c\u003c\u003c \"$env\"\n    if [[ \"$key\" != \"\" \u0026\u0026 \"$value\" != \"\" ]]; then\n        path=\"${ENV_DIR}/${key}\"\n        echo \"--\u003e Writing ${path}...\"\n        echo -n \"$value\" \u003e \"$path\"\n    fi\ndone\n","securityContext":{"privileged":true},"volumeMounts":[{"mountPath":"/layers","name":"layers-dir"},{"mountPath":"/platform","name":"$(params.PLATFORM_DIR)"}]},{"args":["-app=$(workspaces.source.path)/$(params.SOURCE_SUBPATH)","-cache-dir=$(workspaces.cache.path)","-cache-image=$(params.CACHE_IMAGE)","-uid=$(params.USER_ID)","-gid=$(params.GROUP_ID)","-layers=/layers","-platform=/platform","-report=/layers/report.toml","-process-type=$(params.PROCESS_TYPE)","-skip-restore=$(params.SKIP_RESTORE)","-previous-image=$(params.APP_IMAGE)","-run-image=$(params.RUN_IMAGE)","$(params.APP_IMAGE)"],"command":["/cnb/lifecycle/creator"],"image":"$(params.BUILDER_IMAGE)","imagePullPolicy":"Always","name":"create","securityContext":{"runAsGroup":1000,"runAsUser":1000},"volumeMounts":[{"mountPath":"/layers","name":"layers-dir"},{"mountPath":"/platform","name":"$(params.PLATFORM_DIR)"}]},{"image":"docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6","name":"results","script":"#!/usr/bin/env bash\nset -e\ngrep \"digest\" /layers/report.toml | cut -d'\"' -f2 | cut -d'\"' -f2 | tr -d '\\n' | tee \"$(results.APP_IMAGE_DIGEST.path)\"\n\n# Disable shellcheck here since $() is use for variable substitution and not command execution.\n# shellcheck disable=SC2005\necho \"$(params.APP_IMAGE)\" | tee \"$(results.APP_IMAGE_URL.path)\"\n","volumeMounts":[{"mountPath":"/layers","name":"layers-dir"}]}],"volumes":[{"emptyDir":{},"name":"empty-dir"},{"emptyDir":{},"name":"layers-dir"}],"workspaces":[{"description":"Directory where application source is located.","name":"source"},{"description":"Directory where cache is stored (when no cache image is provided).","name":"cache","optional":true}]}}
+    pipeline.tekton.dev/affinity-assistant: affinity-assistant-d4c0a217c4
+    pipeline.tekton.dev/release: 918ca4f
+    tekton.dev/categories: Image Build
+    tekton.dev/displayName: Buildpacks
+    tekton.dev/pipelines.minVersion: 0.17.0
+    tekton.dev/platforms: linux/amd64
+    tekton.dev/tags: image-build
+  creationTimestamp: "2021-11-19T20:56:54Z"
+  finalizers:
+  - chains.tekton.dev
+  generation: 1
+  labels:
+    app.kubernetes.io/description: PipelineRun
+    app.kubernetes.io/managed-by: tekton-pipelines
+    app.kubernetes.io/version: "0.4"
+    reruns: cache-image-pipelinerun-b9qkl
+    tekton.dev/memberOf: tasks
+    tekton.dev/pipeline: buildpacks
+    tekton.dev/pipelineRun: cache-image-pipelinerun-b9qkl-r-sjdrq
+    tekton.dev/pipelineTask: build-trusted
+    tekton.dev/task: buildpacks
+  name: cache-image-pipelinerun-b9qkl-r-sjdrq-build-trusted-jln9g
+  namespace: default
+  ownerReferences:
+  - apiVersion: tekton.dev/v1beta1
+    blockOwnerDeletion: true
+    controller: true
+    kind: PipelineRun
+    name: cache-image-pipelinerun-b9qkl-r-sjdrq
+    uid: 165b506f-222e-44ef-997e-0d8a10907d04
+  resourceVersion: "446217"
+  uid: d5427b9a-36a8-48b6-a84a-69124fe9bac1
+spec:
+  params:
+  - name: BUILDER_IMAGE
+    value: docker.io/cnbs/sample-builder:bionic@sha256:6c03dd604503b59820fd15adbc65c0a077a47e31d404a3dcad190f3179e920b5
+  - name: APP_IMAGE
+    value: ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc
+  - name: SOURCE_SUBPATH
+    value: apps/ruby-bundler
+  - name: PROCESS_TYPE
+    value: web
+  - name: ENV_VARS
+    value: null
+  - name: RUN_IMAGE
+    value: ""
+  - name: CACHE_IMAGE
+    value: ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc-cache
+  - name: USER_ID
+    value: "1000"
+  - name: GROUP_ID
+    value: "1000"
+  resources: {}
+  serviceAccountName: default
+  taskRef:
+    kind: Task
+    name: buildpacks
+  timeout: 1h0m0s
+  workspaces:
+  - name: source
+    persistentVolumeClaim:
+      claimName: cache-image-ws-pvc
+    subPath: source
+  - emptyDir: {}
+    name: cache
+status:
+  completionTime: "2021-11-19T20:57:49Z"
+  conditions:
+  - lastTransitionTime: "2021-11-19T20:57:49Z"
+    message: All Steps have completed executing
+    reason: Succeeded
+    status: "True"
+    type: Succeeded
+  podName: cache-image-pipelinerun-b9qkl-r-sjdrq-build-trusted-jln9g-cn84z
+  startTime: "2021-11-19T20:56:55Z"
+  steps:
+  - container: step-prepare
+    imageID: docker-pullable://bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+    name: prepare
+    terminated:
+      containerID: docker://502b9a31145399c90480e03a5d66bda4700d3b4d19f904063dcdc96a71c0f2de
+      exitCode: 0
+      finishedAt: "2021-11-19T20:56:59Z"
+      reason: Completed
+      startedAt: "2021-11-19T20:56:59Z"
+  - container: step-create
+    imageID: docker-pullable://cnbs/sample-builder@sha256:6c03dd604503b59820fd15adbc65c0a077a47e31d404a3dcad190f3179e920b5
+    name: create
+    terminated:
+      containerID: docker://095a806ab1be5102b7fa802bd55be78dd98b39bd11ba55ebb126a6277e6ab922
+      exitCode: 0
+      finishedAt: "2021-11-19T20:57:48Z"
+      reason: Completed
+      startedAt: "2021-11-19T20:57:00Z"
+  - container: step-results
+    imageID: docker-pullable://bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+    name: results
+    terminated:
+      containerID: docker://d0e8953984e035fdc64606cb201c19b589389f652dd899ce3b87823547073a75
+      exitCode: 0
+      finishedAt: "2021-11-19T20:57:48Z"
+      message: '[{"key":"APP_IMAGE_DIGEST","value":"sha256:7c2fb77bf9a5eae1561974f8adbe95a475a8bdf74cd805aa30127ae313cd58b7","type":1},{"key":"APP_IMAGE_URL","value":"ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc\n","type":1}]'
+      reason: Completed
+      startedAt: "2021-11-19T20:57:48Z"
+  taskResults:
+  - name: APP_IMAGE_DIGEST
+    value: sha256:7c2fb77bf9a5eae1561974f8adbe95a475a8bdf74cd805aa30127ae313cd58b7
+  - name: APP_IMAGE_URL
+    value: |
+      ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc
+  taskSpec:
+    description: The Buildpacks task builds source into a container image and pushes
+      it to a registry, using Cloud Native Buildpacks.
+    params:
+    - description: The name of where to store the app image.
+      name: APP_IMAGE
+      type: string
+    - description: The image on which builds will run (must include lifecycle and
+        compatible buildpacks).
+      name: BUILDER_IMAGE
+      type: string
+    - default: ""
+      description: A subpath within the `source` input where the source to build is
+        located.
+      name: SOURCE_SUBPATH
+      type: string
+    - default: []
+      description: Environment variables to set during _build-time_.
+      name: ENV_VARS
+      type: array
+    - default: web
+      description: The default process type to set on the image.
+      name: PROCESS_TYPE
+      type: string
+    - default: ""
+      description: Reference to a run image to use.
+      name: RUN_IMAGE
+      type: string
+    - default: ""
+      description: The name of the persistent app cache image (if no cache workspace
+        is provided).
+      name: CACHE_IMAGE
+      type: string
+    - default: "false"
+      description: Do not write layer metadata or restore cached layers.
+      name: SKIP_RESTORE
+      type: string
+    - default: "1000"
+      description: The user ID of the builder image user.
+      name: USER_ID
+      type: string
+    - default: "1000"
+      description: The group ID of the builder image user.
+      name: GROUP_ID
+      type: string
+    - default: empty-dir
+      description: The name of the platform directory.
+      name: PLATFORM_DIR
+      type: string
+    results:
+    - description: The digest of the built `APP_IMAGE`.
+      name: APP_IMAGE_DIGEST
+    - description: The URL of the built `APP_IMAGE`.
+      name: APP_IMAGE_URL
+    stepTemplate:
+      env:
+      - name: CNB_PLATFORM_API
+        value: "0.4"
+      name: ""
+      resources: {}
+    steps:
+    - args:
+      - --env-vars
+      - $(params.ENV_VARS[*])
+      image: docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+      name: prepare
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        set -e
+
+        if [[ "$(workspaces.cache.bound)" == "true" ]]; then
+          echo "> Setting permissions on '$(workspaces.cache.path)'..."
+          chown -R "$(params.USER_ID):$(params.GROUP_ID)" "$(workspaces.cache.path)"
+        fi
+
+        for path in "/tekton/home" "/layers" "$(workspaces.source.path)"; do
+          echo "> Setting permissions on '$path'..."
+          chown -R "$(params.USER_ID):$(params.GROUP_ID)" "$path"
+        done
+
+        echo "> Parsing additional configuration..."
+        parsing_flag=""
+        envs=()
+        for arg in "$@"; do
+            if [[ "$arg" == "--env-vars" ]]; then
+                echo "-> Parsing env variables..."
+                parsing_flag="env-vars"
+            elif [[ "$parsing_flag" == "env-vars" ]]; then
+                envs+=("$arg")
+            fi
+        done
+
+        echo "> Processing any environment variables..."
+        ENV_DIR="/platform/env"
+
+        echo "--> Creating 'env' directory: $ENV_DIR"
+        mkdir -p "$ENV_DIR"
+
+        for env in "${envs[@]}"; do
+            IFS='=' read -r key value <<< "$env"
+            if [[ "$key" != "" && "$value" != "" ]]; then
+                path="${ENV_DIR}/${key}"
+                echo "--> Writing ${path}..."
+                echo -n "$value" > "$path"
+            fi
+        done
+      securityContext:
+        privileged: true
+      volumeMounts:
+      - mountPath: /layers
+        name: layers-dir
+      - mountPath: /platform
+        name: $(params.PLATFORM_DIR)
+    - args:
+      - -app=$(workspaces.source.path)/$(params.SOURCE_SUBPATH)
+      - -cache-dir=$(workspaces.cache.path)
+      - -cache-image=$(params.CACHE_IMAGE)
+      - -uid=$(params.USER_ID)
+      - -gid=$(params.GROUP_ID)
+      - -layers=/layers
+      - -platform=/platform
+      - -report=/layers/report.toml
+      - -process-type=$(params.PROCESS_TYPE)
+      - -skip-restore=$(params.SKIP_RESTORE)
+      - -previous-image=$(params.APP_IMAGE)
+      - -run-image=$(params.RUN_IMAGE)
+      - $(params.APP_IMAGE)
+      command:
+      - /cnb/lifecycle/creator
+      image: $(params.BUILDER_IMAGE)
+      imagePullPolicy: Always
+      name: create
+      resources: {}
+      securityContext:
+        runAsGroup: 1000
+        runAsUser: 1000
+      volumeMounts:
+      - mountPath: /layers
+        name: layers-dir
+      - mountPath: /platform
+        name: $(params.PLATFORM_DIR)
+    - image: docker.io/library/bash:5.1.4@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6
+      name: results
+      resources: {}
+      script: |
+        #!/usr/bin/env bash
+        set -e
+        grep "digest" /layers/report.toml | cut -d'"' -f2 | cut -d'"' -f2 | tr -d '\n' | tee "$(results.APP_IMAGE_DIGEST.path)"
+
+        # Disable shellcheck here since $() is use for variable substitution and not command execution.
+        # shellcheck disable=SC2005
+        echo "$(params.APP_IMAGE)" | tee "$(results.APP_IMAGE_URL.path)"
+      volumeMounts:
+      - mountPath: /layers
+        name: layers-dir
+    volumes:
+    - emptyDir: {}
+      name: empty-dir
+    - emptyDir: {}
+      name: layers-dir
+    workspaces:
+    - description: Directory where application source is located.
+      name: source
+    - description: Directory where cache is stored (when no cache image is provided).
+      name: cache
+      optional: true
+      

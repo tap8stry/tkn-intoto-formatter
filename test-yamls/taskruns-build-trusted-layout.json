@@ -1,0 +1,123 @@
+{
+    "signed": {
+        "_type": "cache-image-pipelinerun-b9qkl-r-sjdrq-build-trusted-jln9g",
+        "steps": [
+            {
+                "_type": "step",
+                "pubkeys": null,
+                "expected_command": [
+                    "--env-vars"
+                ],
+                "threshold": 0,
+                "name": "prepare",
+                "expected_materials": [
+                    [
+                        "ALLOW",
+                        "pkg:docker/bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6"
+                    ],
+                    [
+                        "DISALLOW",
+                        "*"
+                    ]
+                ],
+                "expected_products": [
+                    [
+                        "ALLOW",
+                        "ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc"
+                    ]
+                ]
+            },
+            {
+                "_type": "step",
+                "pubkeys": null,
+                "expected_command": [
+                    "/cnb/lifecycle/creator",
+                    "-cache-dir=$(workspaces.cache.path)",
+                    "-cache-image=ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc-cache",
+                    "-uid=1000",
+                    "-gid=1000",
+                    "-layers=/layers",
+                    "-platform=/platform",
+                    "-report=/layers/report.toml",
+                    "-process-type=web",
+                    "-previous-image=ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc",
+                    "ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc"
+                ],
+                "threshold": 0,
+                "name": "create",
+                "expected_materials": [
+                    [
+                        "ALLOW",
+                        "pkg:docker/cnbs/sample-builder@sha256:6c03dd604503b59820fd15adbc65c0a077a47e31d404a3dcad190f3179e920b5"
+                    ],
+                    [
+                        "DISALLOW",
+                        "*"
+                    ]
+                ],
+                "expected_products": [
+                    [
+                        "ALLOW",
+                        "ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc"
+                    ]
+                ]
+            },
+            {
+                "_type": "step",
+                "pubkeys": null,
+                "expected_command": null,
+                "threshold": 0,
+                "name": "results",
+                "expected_materials": [
+                    [
+                        "ALLOW",
+                        "pkg:docker/bash@sha256:b208215a4655538be652b2769d82e576bc4d0a2bb132144c060efc5be8c3f5d6"
+                    ],
+                    [
+                        "DISALLOW",
+                        "*"
+                    ]
+                ],
+                "expected_products": [
+                    [
+                        "ALLOW",
+                        "ttl.sh/61c1d13f8c912e4ec4d545244a29fa4a/slsapoc"
+                    ]
+                ]
+            }
+        ],
+        "inspect": [
+            {
+                "_type": "Inspect",
+                "run": [
+                    ""
+                ],
+                "name": "prepare",
+                "expected_materials": null,
+                "expected_products": null
+            },
+            {
+                "_type": "Inspect",
+                "run": [
+                    ""
+                ],
+                "name": "create",
+                "expected_materials": null,
+                "expected_products": null
+            },
+            {
+                "_type": "Inspect",
+                "run": [
+                    ""
+                ],
+                "name": "results",
+                "expected_materials": null,
+                "expected_products": null
+            }
+        ],
+        "keys": {},
+        "expires": "2021-12-23T08:34:17Z",
+        "readme": ""
+    },
+    "signatures": null
+}
